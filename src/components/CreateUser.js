@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function CreateUser({ username, email, onChange, onCreate }) {
+  useEffect(() => {
+    console.log("CreateUser");
+  });
   return (
     <div>
       <input
@@ -20,4 +23,6 @@ function CreateUser({ username, email, onChange, onCreate }) {
   );
 }
 
-export default CreateUser;
+export default React.memo(CreateUser);
+// React.memo(): 컴포넌트의 props 바뀌지 않았다면,
+// 리렌더링 방지해 컴포넌트 리렌더링 성능 최적화 해줌

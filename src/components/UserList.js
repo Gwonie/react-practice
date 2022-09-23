@@ -4,17 +4,18 @@ import React, { useEffect } from "react";
 
 // 컴포넌트 리렌더링 조건
 
-function User({ user, onRemove, onToggle }) {
+const User = React.memo(function User({ user, onRemove, onToggle }) {
   // useEffet 사용해 마운트/언마운트/언데이트시 할 작업 설정
   // 마운트: 처음 나타날 때
   // 언마운트: 사라질 때
-  //   useEffect(() => {
-  //     console.log("컴포넌트가 화면에 나타남");
-  //     return () => {
-  //       // clenup함수
-  //       console.log("컴포넌트가 화면에서 사라짐");
-  //     };
-  //   }, []);
+  useEffect(() => {
+    // console.log("컴포넌트가 화면에 나타남");
+    console.log("User");
+    return () => {
+      // clenup함수
+      //   console.log("컴포넌트가 화면에서 사라짐");
+    };
+  }, []);
 
   // 업데이트: 특정 props가 바뀔때
   // 규칙:
@@ -51,9 +52,12 @@ function User({ user, onRemove, onToggle }) {
       <button onClick={() => onRemove(user.id)}>삭제</button>
     </div>
   );
-}
+});
 
 function UserList({ users, onRemove, onToggle }) {
+  useEffect(() => {
+    console.log("UserList");
+  });
   return (
     <div>
       {users.map((user) => (
@@ -69,4 +73,4 @@ function UserList({ users, onRemove, onToggle }) {
   );
 }
 
-export default UserList;
+export default React.memo(UserList);

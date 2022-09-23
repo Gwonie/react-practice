@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useCallback } from "react";
+import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 
 import UserList from "./components/UserList";
 import CreateUser from "./components/CreateUser";
@@ -8,11 +8,14 @@ import CreateUser from "./components/CreateUser";
 // users에 변화있을 때가 아닌, input값이 바뀔 때에도 컴포넌트가 리렌더링돼 useMemo 사용
 // memoized: 이전 "계산" 값 재사용
 function countActiveUsers(users) {
-  // console.log("활성 사용자 수를 세는중...");
+  console.log("활성 사용자 수를 세는중...");
   return users.filter((user) => user.active).length;
 }
 
 function App() {
+  useEffect(() => {
+    // console.log("App");
+  });
   // input 상태관리
   const [inputs, setInputs] = useState({
     username: "",
@@ -20,13 +23,13 @@ function App() {
   });
   const { username, email } = inputs;
 
-  const onChange = (e) => {
+  const onChange = useCallback((e) => {
     const { name, value } = e.target;
-    setInputs({
+    setInputs((inputs) => ({
       ...inputs,
       [name]: value,
-    });
-  };
+    }));
+  }, []);
 
   // users 상태관리
   const [users, setUsers] = useState([
@@ -65,7 +68,7 @@ function App() {
       email,
     };
     // spread 연산자 사용
-    setUsers([...users, user]);
+    setUsers((users) => [...users, user]);
 
     // concat함수 사용: 기존 배열을 수정하지 않고,
     // 새로운 원소가 추가된 새로운 배열을 생성
@@ -77,29 +80,23 @@ function App() {
       email: "",
     });
     nextId.current += 1;
-  }, [users, username, email]);
+  }, [username, email]);
 
   // users 배열에 항목 제거하기
   // filter(): 배열에서 특정 조건이 만족하는 원소들만 추출하여 새로운 배열 반환
-  const onRemove = useCallback(
-    (id) => {
-      setUsers(users.filter((user) => user.id !== id));
-    },
-    [users]
-  );
+  const onRemove = useCallback((id) => {
+    setUsers((users) => users.filter((user) => user.id !== id));
+  }, []);
 
   // users 배열에 항목 수정하기
   // map함수 사용
-  const onToggle = useCallback(
-    (id) => {
-      setUsers(
-        users.map((user) =>
-          user.id === id ? { ...user, active: !user.active } : user
-        )
-      );
-    },
-    [users]
-  );
+  const onToggle = useCallback((id) => {
+    setUsers((users) =>
+      users.map((user) =>
+        user.id === id ? { ...user, active: !user.active } : user
+      )
+    );
+  }, []);
 
   // useCallback: 특정 함수 재사용하고 싶을 때 사용
   // 함수들이 컴포넌트가 리렌더링될 때마다 새로 만들어짐 -> useCallback 사용하여 최적화
@@ -124,3 +121,9 @@ function App() {
 }
 
 export default App;
+
+// 함수형 업데이트
+// React.memo 사용 후...
+// deps에 users가 들어가 있어서 배열이 바뀔 때마다 함수가 생성됨
+// -> deps에서 users 지우고, useState로 관리하는 users 참조하지 않게함
+// setUsers에 등록하는 콜백함수의 파라미터에서 최신 users 참조 가능
