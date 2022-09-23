@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 import UserList from "./components/UserList";
 import CreateUser from "./components/CreateUser";
 
+// App > CreateUser == UserList
+
 function App() {
   // input 상태관리
   const [inputs, setInputs] = useState({
@@ -54,7 +56,7 @@ function App() {
     };
     // spread 연산자 사용
     setUsers([...users, user]);
-    
+
     // concat함수 사용: 기존 배열을 수정하지 않고,
     // 새로운 원소가 추가된 새로운 배열을 생성
 
@@ -66,6 +68,13 @@ function App() {
     });
     nextId.current += 1;
   };
+
+  // users 배열에 항목 제거하기
+  // filter(): 배열에서 특정 조건이 만족하는 원소들만 추출하여 새로운 배열 반환
+  const onRemove = (id) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+
   // CreatUser, UserList 반환
   return (
     <>
@@ -75,7 +84,7 @@ function App() {
         onChange={onChange}
         onCreate={onCreate}
       />
-      <UserList users={users} />
+      <UserList users={users} onRemove={onRemove} />
     </>
   );
 }
