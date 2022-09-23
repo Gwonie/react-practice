@@ -1,9 +1,16 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 
 import UserList from "./components/UserList";
 import CreateUser from "./components/CreateUser";
 
 // App > CreateUser == UserList
+
+// users에 변화있을 때가 아닌, input값이 바뀔 때에도 컴포넌트가 리렌더링돼 useMemo 사용
+// memoized: 이전 "계산" 값 재사용
+function countActiveUsers(users) {
+  console.log("활성 사용자 수를 세는중...");
+  return users.filter((user) => user.active).length;
+}
 
 function App() {
   // input 상태관리
@@ -88,6 +95,9 @@ function App() {
     );
   };
 
+  const count = useMemo(() => countActiveUsers(users), [users]);
+  // 배열 내용 바뀜 ? 함수 호출 해 값 연산 : 이전 연산값 재사용
+
   // CreatUser, UserList 반환
   return (
     <>
@@ -98,6 +108,7 @@ function App() {
         onCreate={onCreate}
       />
       <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+      <div>활성사용자 수 : {count}</div>
     </>
   );
 }
