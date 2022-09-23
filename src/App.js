@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 
 import UserList from "./components/UserList";
 import CreateUser from "./components/CreateUser";
@@ -8,7 +8,7 @@ import CreateUser from "./components/CreateUser";
 // users에 변화있을 때가 아닌, input값이 바뀔 때에도 컴포넌트가 리렌더링돼 useMemo 사용
 // memoized: 이전 "계산" 값 재사용
 function countActiveUsers(users) {
-  console.log("활성 사용자 수를 세는중...");
+  // console.log("활성 사용자 수를 세는중...");
   return users.filter((user) => user.active).length;
 }
 
@@ -58,7 +58,7 @@ function App() {
 
   // users 배열에 항목 추가하기
   // "불변성" 지키면서
-  const onCreate = () => {
+  const onCreate = useCallback(() => {
     const user = {
       id: nextId.current,
       username,
@@ -77,23 +77,33 @@ function App() {
       email: "",
     });
     nextId.current += 1;
-  };
+  }, [users, username, email]);
 
   // users 배열에 항목 제거하기
   // filter(): 배열에서 특정 조건이 만족하는 원소들만 추출하여 새로운 배열 반환
-  const onRemove = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
-  };
+  const onRemove = useCallback(
+    (id) => {
+      setUsers(users.filter((user) => user.id !== id));
+    },
+    [users]
+  );
 
   // users 배열에 항목 수정하기
   // map함수 사용
-  const onToggle = (id) => {
-    setUsers(
-      users.map((user) =>
-        user.id === id ? { ...user, active: !user.active } : user
-      )
-    );
-  };
+  const onToggle = useCallback(
+    (id) => {
+      setUsers(
+        users.map((user) =>
+          user.id === id ? { ...user, active: !user.active } : user
+        )
+      );
+    },
+    [users]
+  );
+
+  // useCallback: 특정 함수 재사용하고 싶을 때 사용
+  // 함수들이 컴포넌트가 리렌더링될 때마다 새로 만들어짐 -> useCallback 사용하여 최적화
+  // deps 배열 안에 함수 안에서 사용하는 상태/props를 포함시키는 거 필수
 
   const count = useMemo(() => countActiveUsers(users), [users]);
   // 배열 내용 바뀜 ? 함수 호출 해 값 연산 : 이전 연산값 재사용
